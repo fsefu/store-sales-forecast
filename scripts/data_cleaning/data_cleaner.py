@@ -71,19 +71,28 @@ class DataCleaner:
         merged_test = pd.merge(test_data, self.store_data, on="Store", how="left")
         return merged_train, merged_test
 
+   
     def clean_train_and_test(self, train_data, test_data):
-        """
-        Merge and clean both training and test datasets.
-        :param train_data: Training DataFrame.
-        :param test_data: Testing DataFrame.
-        :return: Cleaned training and testing DataFrames.
-        """
-        # Step 1: Merge with store data
-        merged_train_data, merged_test_data = self.merge_store_data(train_data, test_data)
+            """Method to clean train and test datasets."""
+            
+            # Ensure store_data is loaded
+            if self.store_data is None:
+                raise ValueError("store_data is not initialized or loaded.")
+            
+            # Ensure train_data and test_data are not None
+            if train_data is None:
+                raise ValueError("train_data is not provided.")
+            if test_data is None:
+                raise ValueError("test_data is not provided.")
+            
+            # Ensure 'Store' column exists in train and store data
+            if 'Store' not in train_data.columns:
+                raise KeyError("'Store' column not found in train_data.")
+            if 'Store' not in self.store_data.columns:
+                raise KeyError("'Store' column not found in store_data.")
+            
+            # Example: Merging with store_data if available
+            cleaned_train_data = train_data.merge(self.store_data, on='Store', how='left')
+            cleaned_test_data = test_data.merge(self.store_data, on='Store', how='left')
 
-        # Step 2: Clean the merged datasets
-        cleaned_train_data = self.clean_dataset(merged_train_data)
-        cleaned_test_data = self.clean_dataset(merged_test_data)
-
-        return cleaned_train_data, cleaned_test_data
-
+            return cleaned_train_data, cleaned_test_data
