@@ -164,13 +164,19 @@ class EDA:
 
     def analyze_effective_promo_deployment(self):
         """Identify stores where promos should be deployed more effectively."""
+        # Calculate promo effectiveness by subtracting the average sales without promo from those with promo
         promo_effectiveness = self.cleaned_train_data.groupby('Store').apply(
-            lambda x: (x[x['Promo'] == 1]['Sales'].mean() - x[x['Promo'] == 0]['Sales'].mean())
-        ).reset_index(name='PromoEffectiveness')
+            lambda x: x[x['Promo'] == 1]['Sales'].mean() - x[x['Promo'] == 0]['Sales'].mean()
+        ).reset_index()
 
+        # Rename the columns
+        promo_effectiveness.columns = ['Store', 'PromoEffectiveness']
+
+        # Display the top stores where promos are most effective
         print("Top stores where promos are most effective:")
         print(promo_effectiveness.sort_values(by='PromoEffectiveness', ascending=False).head())
 
+        # Plot promo effectiveness for each store
         plt.figure(figsize=(10, 6))
         sns.barplot(x=promo_effectiveness['Store'], y=promo_effectiveness['PromoEffectiveness'])
         plt.title("Promo Effectiveness per Store")
@@ -178,6 +184,7 @@ class EDA:
         plt.ylabel("Sales Increase due to Promo")
         plt.xticks(rotation=90)
         plt.show()
+
 
     def run_full_analysis(self):
         """Run all the analysis methods sequentially."""
