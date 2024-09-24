@@ -8,3 +8,4 @@ scipy==1.14.1
 ipykernel==6.29.5
 ipython
 jupyter==1.0.0
+scikit-learn==1.5.2
