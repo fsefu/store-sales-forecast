@@ -10,16 +10,28 @@ class DataPreprocessor:
         self.df = df
         self.scaler = StandardScaler()
 
+    def merge_store_data(self, store_df):
+        """
+        Merge store data into the main DataFrame.
+        """
+        self.df = self.df.merge(store_df, how='left', on='Store')
+
     def fill_missing_values(self):
         """
         Fill missing values with appropriate strategies.
         """
-        self.df['CompetitionDistance'].fillna(self.df['CompetitionDistance'].median(), inplace=True)
-        self.df['Promo2SinceYear'].fillna(0, inplace=True)
-        self.df['Promo2SinceWeek'].fillna(0, inplace=True)
-        self.df['CompetitionOpenSinceYear'].fillna(self.df['CompetitionOpenSinceYear'].mode()[0], inplace=True)
-        self.df['CompetitionOpenSinceMonth'].fillna(self.df['CompetitionOpenSinceMonth'].mode()[0], inplace=True)
-        self.df['PromoInterval'].fillna('None', inplace=True)
+        if 'CompetitionDistance' in self.df.columns:
+            self.df['CompetitionDistance'].fillna(self.df['CompetitionDistance'].median(), inplace=True)
+        if 'Promo2SinceYear' in self.df.columns:
+            self.df['Promo2SinceYear'].fillna(0, inplace=True)
+        if 'Promo2SinceWeek' in self.df.columns:
+            self.df['Promo2SinceWeek'].fillna(0, inplace=True)
+        if 'CompetitionOpenSinceYear' in self.df.columns:
+            self.df['CompetitionOpenSinceYear'].fillna(self.df['CompetitionOpenSinceYear'].mode()[0], inplace=True)
+        if 'CompetitionOpenSinceMonth' in self.df.columns:
+            self.df['CompetitionOpenSinceMonth'].fillna(self.df['CompetitionOpenSinceMonth'].mode()[0], inplace=True)
+        if 'PromoInterval' in self.df.columns:
+            self.df['PromoInterval'].fillna('None', inplace=True)
 
     def convert_to_numeric(self):
         """
@@ -38,14 +50,8 @@ class DataPreprocessor:
         self.df['DayOfMonth'] = self.df['Date'].dt.day
         self.df['IsMonthStart'] = self.df['Date'].dt.is_month_start.astype(int)
         self.df['IsMonthEnd'] = self.df['Date'].dt.is_month_end.astype(int)
-        # Example of days to holidays or special dates - adjust as needed
-        self.df['DaysToHoliday'] = (pd.to_datetime('2024-12-25') - self.df['Date']).dt.days
-
-    def merge_store_data(self, store_df):
-        """
-        Merge store data into the main DataFrame.
-        """
-        self.df = self.df.merge(store_df, how='left', on='Store')
+        # Days to holidays - example: Christmas (could add more holidays)
+        self.df['DaysToHoliday'] = (pd.to_datetime('2015-12-25') - self.df['Date']).dt.days
 
     def scale_features(self):
         """
@@ -58,11 +64,11 @@ class DataPreprocessor:
         """
         Execute the full preprocessing pipeline. Optionally merge store data.
         """
+        if store_df is not None:
+            self.merge_store_data(store_df)
         self.fill_missing_values()
         self.convert_to_numeric()
         self.extract_datetime_features()
-        if store_df is not None:
-            self.merge_store_data(store_df)
         self.scale_features()
 
         return self.df
