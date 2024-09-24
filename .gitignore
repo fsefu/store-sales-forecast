@@ -89,6 +89,7 @@ ipython_config.py
 # Environments
 .env
 .venv
+.winvenv
 env/
 venv/
 ENV/
